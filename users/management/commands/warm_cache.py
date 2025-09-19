@@ -21,15 +21,3 @@ class Command(BaseCommand):
             self.style.SUCCESS(f'Successfully cached {len(users)} users')
         )
 
-    def cache_with_tags(key, data, tags, timeout=300):
-        cache.set(key, data, timeout)
-        for tag in tags:
-            tagged_keys = cache.get(f'tag_{tag}', set())
-            tagged_keys.add(key)
-            cache.set(f'tag_{tag}', tagged_keys, timeout)
-
-    def invalidate_by_tag(tag):
-        tagged_keys = cache.get(f'tag_{tag}', set())
-        for key in tagged_keys:
-            cache.delete(key)
-        cache.delete(f'tag_{tag}')

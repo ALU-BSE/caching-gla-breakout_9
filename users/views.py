@@ -16,6 +16,19 @@ def get_cache_key(prefix, identifier=None):
         return f"{prefix}_{identifier}"
     return prefix
 
+def cache_with_tags(key, data, tags, timeout=300):
+    cache.set(key, data, timeout)
+    for tag in tags:
+        tagged_keys = cache.get(f'tag_{tag}', set())
+        tagged_keys.add(key)
+        cache.set(f'tag_{tag}', tagged_keys, timeout)
+
+def invalidate_by_tag(tag):
+    tagged_keys = cache.get(f'tag_{tag}', set())
+    for key in tagged_keys:
+        cache.delete(key)
+    cache.delete(f'tag_{tag}')
+
 @api_view(['GET'])
 def cache_stats(request):
     # How would you check what's in cache?
@@ -82,3 +95,8 @@ class UserViewSet(viewsets.ModelViewSet):
         cache.delete('user_list')  # List cache
         cache.delete(f'user_{user_id}')  # Individual cache
         super().perform_update(serializer)
+
+        # Write-through: immediately update cache
+        user_data = self.get_serializer(serializer.instance).data
+        cache_key = f"user_{serializer.instance.id}"
+        cache.set(cache_key, user_data, timeout=settings.CACHE_TTL)
