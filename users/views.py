@@ -8,14 +8,7 @@ from django.core.cache import cache
 from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
-@api_view(['GET'])
-def cache_stats(request):
-    return Response({
-        'cache_keys': list(cache.keys()),  # List current cache keys
-        'total_keys': cache.count(),       # Count of cached items
-        'cache_timeout': settings.CACHES['default']['TIMEOUT'],  # Default timeout
-    })
+from users.decorators import cache_performance
 
 def get_cache_key(prefix, identifier=None):
     """Generate consistent cache keys"""
@@ -23,11 +16,28 @@ def get_cache_key(prefix, identifier=None):
         return f"{prefix}_{identifier}"
     return prefix
 
+@api_view(['GET'])
+def cache_stats(request):
+    # How would you check what's in cache?
+    redis_client = cache.client.get_client()
+    # Get all keys in Redis
+    keys = redis_client.keys('*')
+    keys = [k.decode('utf-8') if isinstance(k, bytes) else k for k in keys]
+    total_keys = len(keys)
+    key_ttls = {k: redis_client.ttl(k) for k in keys}
+
+    return Response({
+        'cache_keys': keys,
+        'total_keys': total_keys,
+        'key_ttls': key_ttls,
+    })
+
 # Create your views here.
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @cache_performance("user_list_cache")
     def list(self, request, *args, **kwargs):
         # Step 1: Create cache key
         cache_key = get_cache_key('user_list')

@@ -2,7 +2,7 @@ import requests
 import time
 
 def test_cache_performance():
-    url = "http://localhost:8000/api/users/"
+    url = "http://127.0.0.1:8000/api/users/"
     
     # First call (cache miss)
     start = time.time()
