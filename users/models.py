@@ -87,7 +87,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 # TODO: Complete the Passenger model implementation
 class Passenger(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='passenger_profile')
-    passenger_id = models.CharField(max_length=10, unique=True)
     preferred_payment_method = models.CharField(max_length=10, default='momo')
     home_address = models.TextField(max_length=100)
 

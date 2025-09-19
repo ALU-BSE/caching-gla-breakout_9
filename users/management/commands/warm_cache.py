@@ -20,4 +20,3 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f'Successfully cached {len(users)} users')
         )
-
