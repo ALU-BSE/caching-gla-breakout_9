@@ -104,7 +104,7 @@ class UserViewSet(viewsets.ModelViewSet):
     
     def perform_destroy(self, instance):
         user_id = instance.id
-        result = super().perform_destroy(instance)
+        super().perform_destroy(instance)
         cache.delete(get_cache_key('user_list'))
         cache.delete(get_cache_key('user', user_id))
 
