@@ -134,6 +134,19 @@ AUTH_USER_MODEL = 'users.User'
 #     'DEFAULT_AUTHENTICATION_CLASSES': []
 # }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379',
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+CACHE_TTL = 60 * 15  # 15 minutes
+
 if os.environ.get('REDIS_CLUSTER_URL'):
     CACHES = {
         'default': {
