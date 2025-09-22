@@ -103,10 +103,10 @@ class UserViewSet(viewsets.ModelViewSet):
         cache.set(cache_key, user_data, timeout=300)
     
     def perform_destroy(self, instance):
-        passenger_id = instance.id
+        user_id = instance.id
         result = super().perform_destroy(instance)
-        cache.delete(get_cache_key('passenger_list'))
-        cache.delete(get_cache_key('passenger', passenger_id))
+        cache.delete(get_cache_key('user_list'))
+        cache.delete(get_cache_key('user', user_id))
 
 class PassengerViewSet(viewsets.ModelViewSet):
     queryset = Passenger.objects.select_related('user').all()
